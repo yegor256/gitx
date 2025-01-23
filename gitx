@@ -48,13 +48,15 @@ while IFS= read -r d; do
     done < <(find "${d}" -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | sort)
 done < <(find . -maxdepth 1 -mindepth 1 -type d -o -type l -exec basename {} \; | sort)
 
-printf 'Repositories found:\n'
+printf '%d repositories found:\n' "${#repos[@]}"
 printf '\t%s\n' "${repos[@]}"
 set -e
 
+pos=0
 for r in "${repos[@]}"; do
-    printf "\n\n\n%s↓↓↓ %s ↓↓↓%s\n" \
-        "$(tput bold)" "${r}" "$(tput sgr0)"
+    pos=$(( pos + 1 ))
+    printf "\n\n\n%s↓↓↓ %s (%d/%d) ↓↓↓%s\n" \
+        "$(tput bold)" "${r}" "${pos}" "${#repos[@]}" "$(tput sgr0)"
     opts=("--git-dir=${r}/.git" "--work-tree=${r}")
     if [ "${cmd}" == "pull" ]; then
         git "${opts[@]}" checkout master
