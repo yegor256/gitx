@@ -1,0 +1,89 @@
+#!/bin/bash
+# Copyright (c) 2025 Yegor Bugayenko
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the 'Software'), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+set -e
+
+cmd=$1
+
+if [ -z "${cmd}" ]; then
+    printf "Usage: gitx command [options]\n"
+    printf "Commands:\n"
+    printf "\tpull\t'git pull' in all repositories\n"
+    printf "\treset\t'git reset --hard' in all repositories\n"
+    printf "\tdiff\t'git diff' in all repositories\n"
+    printf "\tpush\t'git push' in all repositories\n"
+    exit
+fi
+
+declare -a repos=()
+while IFS= read -r d; do
+    if [ -e "${d}/.git" ]; then
+        repos+=( "${d}" )
+    fi
+    while IFS= read -r s; do
+        if [ -e "${d}/.git/modules/${s}" ]; then
+            continue
+        fi
+        if [ -e "${d}/${s}/.git" ]; then
+            repos+=( "${d}/${s}" )
+        fi
+    done < <(find "${d}" -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | sort)
+done < <(find . -maxdepth 1 -mindepth 1 -type d -o -type l -exec basename {} \; | sort)
+
+set -ex
+printf '%s\n' "${repos[@]}"
+
+for r in "${repos[@]}"; do
+    printf "\n\n\n**************************************************************** %s\n" "${r}"
+    opts=("--git-dir=${r}/.git" "--work-tree=${r}")
+    if [ "${cmd}" == "pull" ]; then
+        git "${opts[@]}" checkout master
+        git "${opts[@]}" pull
+        if [ -e "${r}/.git/modules" ]; then
+            cd "${r}" && git submodule update --remote && cd ..
+        fi
+    elif [ "${cmd}" == "reset" ]; then
+        git "${opts[@]}" reset --hard
+        git "${opts[@]}" clean -fd
+        if [ -e "${r}/.git/modules" ]; then
+            cd "${r}" && git submodule update --init && cd ..
+            while IFS= read -r sm; do
+                git "${opts[@]}" config "submodule.${sm}.ignore" all
+            done < <(find "${r}/.git/modules" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
+        fi
+    elif [ "${cmd}" == "diff" ]; then
+        git "${opts[@]}" --no-pager diff
+    elif [ "${cmd}" == "status" ]; then
+        git "${opts[@]}" status
+    elif [ "${cmd}" == "push" ]; then
+        if git "${opts[@]}" diff-index --quiet HEAD; then
+            echo 'Nothing to push'
+        else
+            git "${opts[@]}" status
+            git "${opts[@]}" add .
+            git "${opts[@]}" commit -S --allow-empty -am "$2"
+            git "${opts[@]}" push origin master
+        fi
+    else
+        echo "Unknown command '${cmd}'"
+        exit 1
+    fi
+done
