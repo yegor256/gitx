@@ -53,7 +53,7 @@ printf '\t%s\n' "${repos[@]}"
 set -e
 
 for r in "${repos[@]}"; do
-    printf "\n\n\n%s**************************************************************** %s%s\n" \
+    printf "\n\n\n%s↓↓↓ %s ↓↓↓%s\n" \
         "$(tput bold)" "${r}" "$(tput sgr0)"
     opts=("--git-dir=${r}/.git" "--work-tree=${r}")
     if [ "${cmd}" == "pull" ]; then
