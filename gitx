@@ -48,8 +48,8 @@ while IFS= read -r d; do
     done < <(find "${d}" -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | sort)
 done < <(find . -maxdepth 1 -mindepth 1 -type d -o -type l -exec basename {} \; | sort)
 
-set -ex
-printf '%s\n' "${repos[@]}"
+printf 'Repositories found:\n%s\n' "${repos[@]}"
+set -e
 
 for r in "${repos[@]}"; do
     printf "\n\n\n**************************************************************** %s\n" "${r}"
