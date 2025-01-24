@@ -52,6 +52,10 @@ printf '%d repositories found:\n' "${#repos[@]}"
 printf '\t%s\n' "${repos[@]}"
 set -e
 
+# Probably, would be better to detect the default branch first,
+# instead of using "master":
+master=master
+
 pos=0
 for r in "${repos[@]}"; do
     pos=$(( pos + 1 ))
@@ -59,7 +63,7 @@ for r in "${repos[@]}"; do
         "$(tput bold)" "${r}" "${pos}" "${#repos[@]}" "$(tput sgr0)"
     opts=("--git-dir=${r}/.git" "--work-tree=${r}")
     if [ "${cmd}" == "pull" ]; then
-        git "${opts[@]}" checkout master
+        git "${opts[@]}" checkout "${master}"
         git "${opts[@]}" pull
         if [ -e "${r}/.git/modules" ]; then
             cd "${r}" && git submodule update --remote && cd ..
@@ -84,7 +88,7 @@ for r in "${repos[@]}"; do
             git "${opts[@]}" status
             git "${opts[@]}" add .
             git "${opts[@]}" commit -S --allow-empty -am "$2"
-            git "${opts[@]}" push origin master
+            git "${opts[@]}" push origin "${master}"
         fi
     else
         echo "Unknown command '${cmd}'"
