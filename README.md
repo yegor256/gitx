@@ -2,7 +2,7 @@
 
 [![shellcheck](https://github.com/yegor256/gitx/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/yegor256/gitx/actions/workflows/shellcheck.yml)
 
-Let's say, you have a many repositories locally and you
+Let's say, you have many repositories locally and you
 need to `git pull` all of them. Instead of going one by one,
 you simply do this:
 
