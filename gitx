@@ -83,7 +83,7 @@ for r in "${repos[@]}"; do
         git "${opts[@]}" status
     elif [ "${cmd}" == "push" ]; then
         if git "${opts[@]}" diff-index --quiet HEAD; then
-            echo 'Nothing to push'
+            echo 'There is nothing to push'
         else
             git "${opts[@]}" status
             git "${opts[@]}" add .
