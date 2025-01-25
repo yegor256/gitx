@@ -94,7 +94,7 @@ for r in "${repos[@]}"; do
         else
             bash_it "${git}" "${opts[@]}" status
             bash_it "${git}" "${opts[@]}" add .
-            bash_it "${git}" "${opts[@]}" commit -S --allow-empty -am "$2"
+            bash_it "${git}" "${opts[@]}" commit -S --allow-empty -am "\"$2\""
             bash_it "${git}" "${opts[@]}" push origin "${master}"
         fi
     else
