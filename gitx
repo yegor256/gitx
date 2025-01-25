@@ -80,6 +80,7 @@ for r in "${repos[@]}"; do
         if [ -e "${r}/.git/modules" ]; then
             bash_it cd "${r}" '&&' "${git}" submodule update --init
             while IFS= read -r sm; do
+                bash_it cd "${r}/${sm}" '&&' "${git}" reset --hard
                 bash_it "${git}" "${opts[@]}" config "submodule.${sm}.ignore" all
             done < <(find "${r}/.git/modules" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
         fi
