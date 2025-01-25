@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-set -e
+set -e -o pipefail
 
 cmd=$1
 
@@ -56,8 +56,9 @@ set -e
 # instead of using "master":
 master=master
 
-# Probably, it's better to find the location of "git" executable first:
-git=git
+function git_it() {
+    /bin/bash -x -c "git $*"
+}
 
 pos=0
 for r in "${repos[@]}"; do
@@ -66,32 +67,32 @@ for r in "${repos[@]}"; do
         "$(tput bold)" "${r}" "${pos}" "${#repos[@]}" "$(tput sgr0)"
     opts=("--git-dir=${r}/.git" "--work-tree=${r}")
     if [ "${cmd}" == "pull" ]; then
-        "${git}" "${opts[@]}" checkout "${master}"
-        "${git}" "${opts[@]}" pull
+        git_it "${opts[@]}" checkout "${master}"
+        git_it "${opts[@]}" pull
         if [ -e "${r}/.git/modules" ]; then
-            cd "${r}" && "${git}" submodule update --remote && cd ..
+            cd "${r}" && git_it submodule update --remote && cd ..
         fi
     elif [ "${cmd}" == "reset" ]; then
-        "${git}" "${opts[@]}" reset --hard
-        "${git}" "${opts[@]}" clean -fd
+        git_it "${opts[@]}" reset --hard
+        git_it "${opts[@]}" clean -fd
         if [ -e "${r}/.git/modules" ]; then
-            cd "${r}" && "${git}" submodule update --init && cd ..
+            cd "${r}" && git_it submodule update --init && cd ..
             while IFS= read -r sm; do
-                "${git}" "${opts[@]}" config "submodule.${sm}.ignore" all
+                git_it "${opts[@]}" config "submodule.${sm}.ignore" all
             done < <(find "${r}/.git/modules" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
         fi
     elif [ "${cmd}" == "diff" ]; then
-        "${git}" "${opts[@]}" --no-pager diff
+        git_it "${opts[@]}" --no-pager diff
     elif [ "${cmd}" == "status" ]; then
-        "${git}" "${opts[@]}" status
+        git_it "${opts[@]}" status
     elif [ "${cmd}" == "push" ]; then
-        if "${git}" "${opts[@]}" diff-index --quiet HEAD; then
+        if git_it "${opts[@]}" diff-index --quiet HEAD; then
             echo 'Nothing to push'
         else
-            "${git}" "${opts[@]}" status
-            "${git}" "${opts[@]}" add .
-            "${git}" "${opts[@]}" commit -S --allow-empty -am "$2"
-            "${git}" "${opts[@]}" push origin "${master}"
+            git_it "${opts[@]}" status
+            git_it "${opts[@]}" add .
+            git_it "${opts[@]}" commit -S --allow-empty -am "$2"
+            git_it "${opts[@]}" push origin "${master}"
         fi
     else
         echo "Unknown command '${cmd}'"
