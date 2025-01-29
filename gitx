@@ -92,6 +92,7 @@ for r in "${repos[@]}"; do
         if bash_it "${git}" "${opts[@]}" diff-index --quiet HEAD; then
             echo 'Nothing to push'
         else
+            bash_it "${git}" "${opts[@]}" pull
             bash_it "${git}" "${opts[@]}" status
             bash_it "${git}" "${opts[@]}" add .
             bash_it "${git}" "${opts[@]}" commit -S --allow-empty -am "\"$2\""
