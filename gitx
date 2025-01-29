@@ -89,14 +89,16 @@ for r in "${repos[@]}"; do
     elif [ "${cmd}" == "status" ]; then
         bash_it "${git}" "${opts[@]}" status
     elif [ "${cmd}" == "push" ]; then
-        if bash_it "${git}" "${opts[@]}" diff-index --quiet HEAD; then
-            echo 'Nothing to push'
-        else
-            bash_it "${git}" "${opts[@]}" pull
+        if ! bash_it "${git}" "${opts[@]}" diff-index --quiet HEAD; then
             bash_it "${git}" "${opts[@]}" status
             bash_it "${git}" "${opts[@]}" add .
             bash_it "${git}" "${opts[@]}" commit -S --allow-empty -am "\"$2\""
+        fi
+        if [ -n "$(bash_it "${git}" "${opts[@]}" diff "origin/${master}")" ]; then
+            bash_it "${git}" "${opts[@]}" pull
             bash_it "${git}" "${opts[@]}" push origin "${master}"
+        else
+            echo 'Nothing to commit'
         fi
     else
         echo "Unknown command '${cmd}'"
