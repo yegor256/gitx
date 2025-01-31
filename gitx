@@ -77,6 +77,7 @@ for r in "${repos[@]}"; do
     elif [ "${cmd}" == "reset" ]; then
         bash_it "${git}" "${opts[@]}" reset --hard
         bash_it "${git}" "${opts[@]}" clean -fd
+        bash_it "${git}" "${opts[@]}" checkout "${master}"
         if [ -e "${r}/.git/modules" ]; then
             bash_it cd "${r}" '&&' "${git}" submodule update --init
             while IFS= read -r sm; do
