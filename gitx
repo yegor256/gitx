@@ -29,6 +29,8 @@ if [ -z "${cmd}" ]; then
     printf "\tpull\t'git pull' in all repositories\n"
     printf "\treset\t'git reset --hard' in all repositories\n"
     printf "\tdiff\t'git diff' in all repositories\n"
+    printf "\tadd\t'git add' in all repositories\n"
+    printf "\tstatus\t'git status' in all repositories\n"
     printf "\tpush\t'git push' in all repositories\n"
     exit
 fi
@@ -87,6 +89,8 @@ for r in "${repos[@]}"; do
         fi
     elif [ "${cmd}" == "diff" ]; then
         bash_it "${git}" "${opts[@]}" --no-pager diff
+    elif [ "${cmd}" == "add" ]; then
+        bash_it "${git}" "${opts[@]}" add .
     elif [ "${cmd}" == "status" ]; then
         bash_it "${git}" "${opts[@]}" status
     elif [ "${cmd}" == "push" ]; then
