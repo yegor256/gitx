@@ -101,7 +101,7 @@ for r in "${repos[@]}"; do
         fi
         if [ -n "$(bash_it "${git}" "${opts[@]}" diff "origin/${master}")" ]; then
             bash_it "${git}" "${opts[@]}" pull
-            bash_it "${git}" "${opts[@]}" push origin "${master}"
+            while true; do bash_it "${git}" "${opts[@]}" push origin "${master}" && break; done
         else
             echo 'Nothing to commit'
         fi
