@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 ---
+# yamllint disable rule:line-length
 name: actionlint
 'on':
   push:
@@ -35,7 +36,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: get_actionlint
-        # yamllint disable-line rule:line-length
         run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
         shell: bash
       - run: ${{ steps.get_actionlint.outputs.executable }} -color
