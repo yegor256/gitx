@@ -32,6 +32,7 @@ if [ -z "${cmd}" ]; then
     printf "\tadd\t'git add' in all repositories\n"
     printf "\tstatus\t'git status' in all repositories\n"
     printf "\tpush\t'git push' in all repositories\n"
+    printf "\nIn order to start from a particular repo, use GITX_SKIP environment variable\n"
     exit
 fi
 
@@ -64,11 +65,17 @@ function bash_it() {
 
 git=git
 
+skip=${GITX_SKIP}
 pos=0
 for r in "${repos[@]}"; do
     pos=$(( pos + 1 ))
     printf "\n\n\n%s↓↓↓ %s (%d/%d) ↓↓↓%s\n" \
         "$(tput bold)" "${r}" "${pos}" "${#repos[@]}" "$(tput sgr0)"
+    if [ -n "${skip}" ] && [ "${skip}" != "${r}" ]; then
+        printf "Skipped, because of GITX_SKIP environment variable"
+        continue
+    fi
+    skip=
     opts=("--git-dir=${r}/.git" "--work-tree=${r}")
     if [ "${cmd}" == "pull" ]; then
         bash_it "${git}" "${opts[@]}" checkout "${master}"
