@@ -79,7 +79,7 @@ for r in "${repos[@]}"; do
     opts=("--git-dir=${r}/.git" "--work-tree=${r}")
     if [ "${cmd}" == "pull" ]; then
         bash_it "${git}" "${opts[@]}" checkout "${master}"
-        bash_it "${git}" "${opts[@]}" pull
+        bash_it "${git}" "${opts[@]}" pull --no-edit
         if [ -e "${r}/.git/modules" ]; then
             bash_it cd "${r}" '&&' "${git}" submodule update --remote
         fi
@@ -108,7 +108,7 @@ for r in "${repos[@]}"; do
             bash_it "${git}" "${opts[@]}" --no-pager show
         fi
         if [ -n "$(bash_it "${git}" "${opts[@]}" diff "origin/${master}")" ]; then
-            while true; do bash_it "${git}" "${opts[@]}" pull && break; done
+            while true; do bash_it "${git}" "${opts[@]}" pull --no-edit && break; done
             while true; do bash_it "${git}" "${opts[@]}" push origin "${master}" && break; done
         else
             echo 'Nothing to commit'
