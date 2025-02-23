@@ -88,6 +88,7 @@ for r in "${repos[@]}"; do
         bash_it "${git}" "${opts[@]}" clean -fd
         bash_it "${git}" "${opts[@]}" checkout "${master}"
         if [ -e "${r}/.git/modules" ]; then
+            bash_it cd "${r}" '&&' "${git}" submodule deinit -f .
             bash_it cd "${r}" '&&' "${git}" submodule update --init
             while IFS= read -r sm; do
                 bash_it cd "${r}/${sm}" '&&' "${git}" reset --hard
