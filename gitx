@@ -89,13 +89,13 @@ for r in "${repos[@]}"; do
         bash_it "${git}" "${opts[@]}" add .
         if ! bash_it "${git}" "${opts[@]}" diff-index --quiet HEAD; then
             bash_it "${git}" "${opts[@]}" status
-            bash_it "${git}" "${opts[@]}" commit --no-verify -S --allow-empty -am "\"$2\""
+            bash_it "${git}" "${opts[@]}" commit -S --allow-empty -am "\"$2\""
             bash_it "${git}" "${opts[@]}" --no-pager show
         fi
         if [ -n "$(bash_it "${git}" "${opts[@]}" diff "origin/${master}")" ]; then
-            # while true; do
-            #     bash_it "${git}" "${opts[@]}" pull --no-edit && break;
-            # done
+            while true; do
+                bash_it "${git}" "${opts[@]}" pull --no-edit && break;
+            done
             while true; do
                 bash_it "${git}" "${opts[@]}" push origin "${master}" && break;
             done
